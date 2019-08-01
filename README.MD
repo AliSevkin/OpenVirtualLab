@@ -1,5 +1,5 @@
 # OpenVirtualLab for Hyper V on windows 10
-Deploys windows 2016 and 2019 server core and desktop editions on Hyper-V for Windows 10 (pro and enterprise edition). For testing
+Deploys windows 2016 and 2019 server Core and Desktop Experience editions on Hyper-V for Windows 10 (pro and enterprise edition). For testing
 and learning purpose. (Don't use it in production Environment, this project uses differencing disks.).
 
 ## Getting Started
