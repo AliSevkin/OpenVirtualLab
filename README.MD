@@ -7,12 +7,13 @@ Download the .zip file, unblock the .zip file. Right click on properties of the 
 
 ### Prerequisites
 You'll need:
-Windows 10 Pro, Enterprise or Education edition with Hyper-V feature installed. 
-16GB of Ram.
-at least 50GB freespace on C:\ drive (or the drive where the programdata resides on), for preparing the parentdisk.
-Enough space for the destination of the parentdisk that will be created at least 50GB.
-Enough space for the destination for the projects with the virtual machines, depending on the amount of servers used. at least 50GB.
-If all destination files will be on the same disk you need at least 150GB free of disk space.
+* Windows 10 Pro, Enterprise or Education edition with Hyper-V feature installed. 
+* 16GB of Ram.
+* at least 50GB freespace on C:\ drive (or the drive where the programdata resides on), for preparing the parentdisk.
+* Enough space for the destination of the parentdisk that will be created at least 50GB.
+* Enough space for the destination for the projects with the virtual machines, depending on the amount of servers used. at least 50GB.
+* If all destination files will be on the same disk you need at least 150GB free of disk space.
+* You'll need at least SSD disk(s), or very fast hd disk in raid5 or a hybride disk to get the full performance of the script.
 
 ### Installing.
 Copy the OpenVirtualLab folder (that you have unziped), to the next location (asuming that your windows installation is on C:\ Drive). C:\Program Files\WindowsPowershell\Modules.
