@@ -36,6 +36,7 @@ to see the examples and helpfiles for the functions.  Use help or get-help
 
  Help New-OvLabDeploy
 ```
+To use the functions, you need to start powershell as an administrator.
 
 ## Authors
 
