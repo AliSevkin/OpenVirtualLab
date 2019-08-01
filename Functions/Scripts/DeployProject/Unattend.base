@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+  <settings pass="windowsPE">
+  <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <SetupUILanguage>
+  <UILanguage>en-US</UILanguage>
+  </SetupUILanguage>
+  <InputLocale>1043:00020409</InputLocale>
+  <SystemLocale>en-US</SystemLocale>
+  <UILanguage>en-US</UILanguage>
+  <UILanguageFallback>en-US</UILanguageFallback>
+  <UserLocale>nl-NL</UserLocale>
+  </component>
+  <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <UserData>
+  <AcceptEula>true</AcceptEula>
+  <FullName>{UsesrFullname}</FullName>
+  <Organization>{Organization}</Organization>
+  </UserData>
+  <EnableFirewall>true</EnableFirewall>
+  <EnableNetwork>true</EnableNetwork>
+  </component>
+  </settings>
+  <settings pass="offlineServicing">
+  <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <EnableLUA>true</EnableLUA>
+  </component>
+  </settings>
+  <settings pass="generalize">
+  <component name="Microsoft-Windows-Security-SPP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <SkipRearm>1</SkipRearm>
+  </component>
+  </settings>
+  <settings pass="specialize">
+  <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <InputLocale>1043:00020409</InputLocale>
+  <SystemLocale>en-US</SystemLocale>
+  <UILanguage>en-US</UILanguage>
+  <UILanguageFallback>en-US</UILanguageFallback>
+  <UserLocale>nl-NL</UserLocale>
+  </component>
+  <component name="Microsoft-Windows-Security-SPP-UX" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <SkipAutoActivation>true</SkipAutoActivation>
+  </component>
+  <component name="Microsoft-Windows-SQMApi" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <CEIPEnabled>0</CEIPEnabled>
+   </component>
+  <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <ComputerName>{ComputerName}</ComputerName>
+  </component>
+    {NetworkComponent}
+  </settings>
+  <settings pass="oobeSystem">
+  <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <OOBE>
+  <HideEULAPage>true</HideEULAPage>
+  <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+  <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+   <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+  <NetworkLocation>Work</NetworkLocation>
+  <ProtectYourPC>1</ProtectYourPC>
+  <SkipUserOOBE>true</SkipUserOOBE>
+  <SkipMachineOOBE>true</SkipMachineOOBE>
+  </OOBE>
+  <UserAccounts>
+  <LocalAccounts>
+  <LocalAccount wcm:action="add">
+  <Password>
+  <Value>{Password}</Value>
+   <PlainText>True</PlainText>
+  </Password>
+  <Description>{UserDescription}</Description>
+  <DisplayName>{UserDisplayName}</DisplayName>
+  <Group>{UserGroup}</Group>
+   <Name>{UserName}</Name>
+  </LocalAccount>
+  </LocalAccounts>
+  </UserAccounts>
+  <RegisteredOrganization>{RegisteredOrganization}</RegisteredOrganization>
+  <RegisteredOwner>{RegisteredOwner}</RegisteredOwner>
+  <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
+  <TimeZone>W. Europe Standard Time</TimeZone>
+  <VisualEffects>
+  <SystemDefaultBackgroundColor>2</SystemDefaultBackgroundColor>
+  </VisualEffects>
+  </component>
+  <component name="Microsoft-Windows-ehome-reg-inf" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="NonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State Jump " xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance Jump ">
+  <RestartEnabled>true</RestartEnabled>
+  </component>
+  </settings>
+  <cpi:offlineImage cpi:source="wim:c:/server2016/sources/install.wim#Windows Server 2016 SERVERDATACENTERCORE" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
+</unattend>
