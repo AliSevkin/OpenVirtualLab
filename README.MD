@@ -44,7 +44,7 @@ To use the functions, you need to start powershell as an administrator.
 * **Ali Sevkin**
 
 ## License
-This project is licensed under the MIT License - see the [https://github.com/Ali-Sevkin/OpenVirtualLab/blob/master/LICENSE.MD](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.MD](https://github.com/Ali-Sevkin/OpenVirtualLab/blob/master/LICENSE.MD) file for details
 
 ## Acknowledgments
 * Used New-IsoFile.ps1 from: 
