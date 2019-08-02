@@ -3,7 +3,7 @@ Deploys windows 2016 and 2019 server Core and Desktop Experience editions on Hyp
 and learning purpose. (Don't use it in production Environment, this project uses differencing disks.).
 
 ## Getting Started
-Download the .zip file, unblock the .zip file. Right click on properties of the zip file, go to the general tab, at the bottom you will se an option to select unblock, select this option and click on ok.
+Download the .zip file, unblock the .zip file. Right click on properties of the zip file, go to the general tab, at the bottom you will se an option to select unblock, select this option and click on ok. Unzip the file. And rename the folder OpenVirtualLab-master to OpenvirtualLab.
 
 ### Prerequisites
 You'll need:
@@ -16,7 +16,7 @@ You'll need:
 * You'll need at least SSD disk(s), or very fast hd disk in raid5 or a hybride disk to get the full performance of the script.
 
 ### Installing.
-Copy the OpenVirtualLab folder (that you have unziped), to the next location (asuming that your windows installation is on C:\ Drive). C:\Program Files\WindowsPowershell\Modules.
+Copy the OpenVirtualLab folder (that you have unziped and renamed), to the next location (asuming that your windows installation is on C:\ Drive). C:\Program Files\WindowsPowershell\Modules.
 After copying the module you need to use Import-Module OpenVirtualLab.
 after importing the module, you get access to 2 new functions.
 New-OvDiskTemplate
