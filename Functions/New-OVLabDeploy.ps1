@@ -111,13 +111,36 @@ Function New-OVLabDeploy() {
     $Password = $ParentDiskConfig.Password
     $DifferencingParentFolder = $ParentDiskConfig.ParentDiskPath
 
+    $Random = $null
+    $UniqueSubProjectNumber = $False
     do {
         $Random = Get-Random -Minimum 0 -Maximum 10
         
-      # $FileExists = Test-Path
 
-    }While ($NotUnique)
-    $ProjectPrefix = "$($ProjectName.substring(0,100))$Random"
+        $ProjectFolder = "$ProjectPath\$ProjectName"
+        $FileExists = Test-Path "$ProjectFolder\subproject.json"
+        
+        If (-not $fileExists) {
+            $SubProjectNumbers = @($Random)
+            if(-Not (Test-Path $ProjectFolder)){
+                New-Item $ProjectFolder -itemtype Directory
+            }
+
+            $SubprojectNumbers|ConvertTo-Json|Out-File -filepath "$ProjectFolder\subproject.json"
+            $UniqueSubProjectNumber = $true
+        } else {
+            $SubProjectNumbers = [string[]](Get-Content "$ProjectFolder\subproject.json" -raw)|ConvertFrom-Json
+            If($SubprojectNumbers -contains $Random) { 
+                $UniqueSubProjectNumber = $False
+            } else { 
+                $UniqueSubProjectNumber = $true
+            }
+        }
+    }While (-Not $UniqueSubProjectNumber)
+    $SubProjectNumbers += $Random
+    $SubprojectNumbers|ConvertTo-Json|Out-File -filepath "$ProjectFolder\subproject.json"
+
+    $ProjectPrefix = "$($ProjectName.substring(0,2))$Random".ToLower()
     # Prefix the computer names with functionality of server
     $DomainController = [string[]](New-ComputerCollection -ServerCount $DomainControllers -Prefix "$($ProjectPrefix)dc")
     $GenericComputer = [string[]](New-ComputerCollection -ServerCount $GenericServers -Prefix "$($ProjectPrefix)svr")
