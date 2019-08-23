@@ -32,10 +32,6 @@ Function Add-ComputerToDomain
 					[string]$Color = "Cyan"
 				)
 				$Time = (Get-Date).ToLongTimeString()
-				$Elapsed = $StopWatch.Elapsed
-	
-				$Timer = "$($Elapsed.Hours):$($Elapsed.Minutes):$($Elapsed.Seconds):$($Elapsed.Milliseconds)"
-	
 				Write-Host [$Time] $Message -ForegroundColor $Color
 	
 			}
@@ -48,7 +44,7 @@ Function Add-ComputerToDomain
 			catch
 			{
 				$Succes = $false
-				Write-Log "(Add-ComputerToDomain) $($args[2]) Couldn't Join to domain $($args[0]) will try again." -color Darkyellow
+				Write-Log "(Add-ComputerToDomain) Couldn't Join to domain will try again." -color Darkyellow
 				for($i=5;$i -gt 0;$i--)
 				{
 					write-log "Will try again in $i seconds$('.'*$i)" -color darkcyan

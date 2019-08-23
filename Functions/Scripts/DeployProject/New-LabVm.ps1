@@ -12,7 +12,7 @@
 		[int]$VmGeneration = 2,
 		[validateRange(2, 128)]
 		[int]$ProccesorCount = 4,
-		$InitialMemoryStartupSize = 1024MB,
+		$InitialMemoryStartupSize = 512MB,
 		[string]$PathToIsoFile
 	)
 	
