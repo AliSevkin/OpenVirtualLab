@@ -152,15 +152,16 @@ Function New-OVLabDeploy() {
     $Comps = @()
     $Computers = @()
     $DControllers = @()
-    
+    $DCs = @()
+
     If ($DomainControllerCore.count -gt 0 -and $DomainController.count -gt 0) {
-        $DControllers = $DomainControllerCore + $DomainController
+        $DCs = $DomainControllerCore + $DomainController
     }
     elseif ($DomainControllerCore.Count -lt 1 -and $DomainController.count -gt 0) {
-        $DControllers = [string[]]$DomainController
+        $DCs = [string[]]$DomainController
     }
     elseif ($DomainController.count -lt 1 -and $DomaincontrollerCore.count -gt 0) {
-        $DControllers = [string[]] $DomaincontrollerCore
+        $DCs = [string[]] $DomaincontrollerCore
     }
     else {
         Write-Host "Couldn't determine the domain controllers, so i quit" -ForegroundColor DarkYellow
@@ -175,6 +176,10 @@ Function New-OVLabDeploy() {
     ForEach ($comp in $Comps ) {
         If (-not [string]::IsNullOrEmpty($Comp)) { $Computers += $Comp }
         }
+
+        ForEach ($DC in $DCs ) {
+            If (-not [string]::IsNullOrEmpty($dc)) { $DomainControllers += $DC }
+            }
 
         $Computers | ForEach-Object { Write-Host $_  will be created }
 
