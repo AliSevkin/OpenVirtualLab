@@ -19,7 +19,7 @@ Function Add-ComputerToDomain
 		$Succes = $false
 		While($Succes -eq $false)
 		{
-            $Error.Clear()
+            $null = $Error.Clear()
 			function Write-Log
 			{
 				param (
@@ -38,8 +38,8 @@ Function Add-ComputerToDomain
 
 			try
 			{
-				Add-Computer -DomainName $args[0] -ComputerName $args[1] -DomainCredential $args[2] -Restart:$true -ErrorAction stop
-				if($error -eq $null) { $Succes = $true } else { $Succes = $false }
+				$null = Add-Computer -DomainName $args[0] -ComputerName $args[1] -DomainCredential $args[2] -Restart:$true -ErrorAction stop
+				$Succes = $true
 			}
 			catch
 			{
@@ -50,6 +50,7 @@ Function Add-ComputerToDomain
 					write-log "Will try again in $i seconds$('.'*$i)" -color darkcyan
 					Start-Sleep -Seconds 1
 				}
+				$Succes = $false
 			}
 
 		}
@@ -62,7 +63,7 @@ Function Add-ComputerToDomain
 									(ConvertTo-SecureString -string $Password -AsPlainText -Force))
 
 	Try {
-		Invoke-Command -session $Session -ScriptBlock $Script -ArgumentList $Domain, $ComputerName, $Credential
+		$null = Invoke-Command -session $Session -ScriptBlock $Script -ArgumentList $Domain, $ComputerName, $Credential
 		Write-Host The background job has ended.
 	} catch {
 		Write-Host The background job has forceably ended. 

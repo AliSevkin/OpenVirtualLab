@@ -53,9 +53,7 @@
 				[switch]$Footer,
 				[string]$Color = "Cyan"
 			)
-			$Time = (Get-Date).ToLongTimeString()
-			$Elapsed = $StopWatch.Elapsed
-	
+			$Time = (Get-Date).ToLongTimeString()	
 			Write-Host [$Time] $Message -ForegroundColor $Color
 	
 		}

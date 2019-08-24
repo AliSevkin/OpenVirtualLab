@@ -25,7 +25,6 @@
 		}
 		catch
 		{
-			write-host $Error[0]
 			write-Log "(New-LabPsSession) Couldn't connect to $VMguest it may still be rebooting." -color DarkYellow
 			for($i = 5; $i -gt 0; $i--)
 			{

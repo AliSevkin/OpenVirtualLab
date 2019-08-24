@@ -121,7 +121,7 @@ Function New-OVLabDeploy() {
         $FileExists = Test-Path "$ProjectFolder\subproject.json"
         
         If (-not $fileExists) {
-            $SubProjectNumbers = @($Random)
+            [string[]]$SubProjectNumbers += @($Random)
             if(-Not (Test-Path $ProjectFolder)){
                 New-Item $ProjectFolder -itemtype Directory
             }
@@ -174,11 +174,11 @@ Function New-OVLabDeploy() {
     $Comps += $GenericComputer
 
     ForEach ($comp in $Comps ) {
-        If (-not [string]::IsNullOrEmpty($Comp)) { $Computers += $Comp }
+        If (-not [string]::IsNullOrEmpty($Comp)) { [string[]]$Computers += $Comp }
         }
 
         ForEach ($DC in $DCs ) {
-            If (-not [string]::IsNullOrEmpty($dc)) { $DomainControllers += $DC }
+            If (-not [string]::IsNullOrEmpty($dc)) { [string[]]$DControllers += $DC }
             }
 
         $Computers | ForEach-Object { Write-Host $_  will be created }
@@ -291,7 +291,7 @@ Function New-OVLabDeploy() {
                 Write-log "Going to deploy Domain Controller on $($DControllers[$i])"
             
                 $PsSession = New-LabPsSession -VMGuest "$ProjectName - $($DControllers[$i])" `
-                    -UserName $Username -Password $Password Domain $Domain
+                    -UserName $Username -Password $Password -Domain $Domain
                 
                 Install-LabVmGuestActiveDirectory -SafeModePassword $Password `
                     -Password $Password -PsSession $PsSession `
