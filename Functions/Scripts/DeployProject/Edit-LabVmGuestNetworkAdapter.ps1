@@ -33,7 +33,12 @@ function Edit-NetworkAdapter
 	$Script = {
 		$null = Set-DnsClientServerAddress -InterfaceAlias ((Get-NetAdapter)[0]|Select-object -ExpandProperty Name) -ServerAddresses $args[3]
 		$null = (Get-NetAdapter)[0] | New-NetIpaddress -IPAddress $args[1] -DefaultGateway $args[2] -AddressFamily IPv4 -PrefixLength 24
-		$null = (Get-NetAdapter)[0]| Rename-NetAdapter -NewName $args[0]		
+		$null = (Get-NetAdapter)[0]| Rename-NetAdapter -NewName $args[0]
+		
+		Write-Host Enabling Remote desktop -ForegroundColor Green
+		Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\‘ -Name “fDenyTSConnections” -Value 0
+        Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 0
+        Enable-NetFirewallRule -DisplayGroup “Remote Desktop”
 
 		if (Test-Path "C:\unattend.xml")
 		{

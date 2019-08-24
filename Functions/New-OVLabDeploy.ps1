@@ -81,7 +81,8 @@ Function New-OVLabDeploy() {
         [int]$GenericServersCore,
         #[int]$Windows10Pro,
         #[int]$Windows10Enterprse,
-        [string]$NetworkIpAddress
+        [string]$NetworkIpAddress,
+        [switch]$ExportRDPConfigForMremoteNG
     )  
 
     # starting the stopwatch
@@ -303,7 +304,49 @@ Function New-OVLabDeploy() {
     
         Write-Log "$('-'*$RepeatTop)`n$($Tabs)Finished deploying the project`n$('-'*$Repeat)" -color Magenta
         write-log $Stopwatch.Elapsed
+
+        $mRemoteNGCSV = @()
+        If ($ExportRDPConfigForMremoteNG){
+            $Id = (New-Guid).Guid
+            $mRemoteNGCSV += Export-mRemoteNg -NodeName "$($ProjectPrefix)" -NodeType "Container" -ProjectName "$($ProjectName)($ProjectPrefix)" -NodeId $Id -Icon "mRemoteNG"
+
+               $IpCounter = 0
+               ForEach($Computer in $Computers) {
+                    $IpCounter++
+                    $Lanip = "$NetworkIp.$($IpCounter)"
+                    $mRemoteNGCSV += Export-mRemoteNg -NodeName $Computer -NodeType "Connection" -ProjectName $ProjectName -Domain $Domain `
+                    -Description "" -IpAddress $Lanip -Password $Password -ParentId $Id `
+                    -NodeId "$((New-Guid).Guid)" -Icon "Windows" -UserName $UserName
+               }
+           
+            $CSV = $mRemoteNGCSV|ConvertTo-Csv -NoTypeInformation -Delimiter ';'|ForEach-Object{$_ -replace '"',''}
+            $CSV|Out-File "$env:USERPROFILE\Desktop\$ProjectName.csv" -Encoding utf8
+
+            Write-Host "mRemoteNG configuration exported. to desktop with the name: $("$env:USERPROFILE\Desktop\$ProjectName.csv")"
+        }
         $StopWatch.Stop()
     } 
 
-    
+    <# 
+        |Select-Object Name,Id,Parent,NodeType,Description,Icon,Panel,Username,Password,Domain, `
+            Hostname,Protocol,PuttySession,Port,ConnectToConsole,UseCredSsp,RenderingEngine,ICAEncryptionStrength, `
+            RDPAuthenticationLevel,LoadBalanceInfo,Colors,Resolution,AutomaticResize,DisplayWallpaper,DisplayThemes, `
+            EnableFontSmoothing,EnableDesktopComposition,CacheBitmaps,RedirectDiskDrives,RedirectPorts,RedirectPrinters, `
+            RedirectSmartCards,RedirectSound,RedirectKeys,PreExtApp,PostExtApp,MacAddress,UserField,ExtApp,VNCCompression, `
+            VNCEncoding,VNCAuthMode,VNCProxyType,VNCProxyIP,VNCProxyPort,VNCProxyUsername,VNCProxyPassword,VNCColors, `
+            VNCSmartSizeMode,VNCViewOnly,RDGatewayUsageMethod,RDGatewayHostname,RDGatewayUseConnectionCredentials, `
+            RDGatewayUsername,RDGatewayPassword,RDGatewayDomain,InheritCacheBitmaps,InheritColors,InheritDescription, `
+            InheritDisplayThemes,InheritDisplayWallpaper,InheritEnableFontSmoothing,InheritEnableDesktopComposition, `
+            InheritDomain,InheritIcon,InheritPanel,InheritPassword,InheritPort,InheritProtocol,InheritPuttySession, `
+            InheritRedirectDiskDrives,InheritRedirectKeys,InheritRedirectPorts,InheritRedirectPrinters, `
+            InheritRedirectSmartCards,InheritRedirectSound,InheritResolution,InheritAutomaticResize, `
+            InheritUseConsoleSession,InheritUseCredSsp,InheritRenderingEngine,InheritUsername,InheritICAEncryptionStrength, `
+            InheritRDPAuthenticationLevel,InheritLoadBalanceInfo,InheritPreExtApp,InheritPostExtApp,InheritMacAddress, `
+            InheritUserField,InheritExtApp,InheritVNCCompression,InheritVNCEncoding,InheritVNCAuthMode,InheritVNCProxyType, `
+            InheritVNCProxyIP,InheritVNCProxyPort,InheritVNCProxyUsername,InheritVNCProxyPassword,InheritVNCColors, `
+            InheritVNCSmartSizeMode,InheritVNCViewOnly,InheritRDGatewayUsageMethod,InheritRDGatewayHostname, `
+            InheritRDGatewayUseConnectionCredentials,InheritRDGatewayUsername,InheritRDGatewayPassword,InheritRDGatewayDomain `
+            InheritRDPAlertIdleTimeout,InheritRDPMinutesToIdleTimeout,InheritSoundQuality|
+
+
+    #>
