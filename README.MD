@@ -39,6 +39,8 @@ to see the examples and helpfiles for the functions.  Use help or get-help
 ```
 To use the functions, you need to start powershell as an administrator.
 
+There is also an parameter for exporting an configuration file for mRemoteNG, importing this file will create the rdp connections for you within mRemoteNG. (RDP connections are enabled by default during the deployment of a lab).
+
 ## Authors
 
 * **Ali Sevkin**
