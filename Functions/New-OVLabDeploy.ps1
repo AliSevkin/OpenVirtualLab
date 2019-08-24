@@ -32,7 +32,13 @@ Function New-OVLabDeploy() {
     
     .PARAMETER DomainControllerscore
     Specifies the number of Domain controllers with core edition that will be deployed.
+
+    .PARAMETER ExportRDPConfigForMremoteNG
+    Exports a configuration file (.csv) for mRemoteNG, this file can imported to preconfigure the connections to the lab.
     
+    .PARAMETER NetworkIpAddress
+    here you can specify wich network should be used for the lab. The network address shouldn't be the same as your hosts (windows machine) address.
+
     .EXAMPLE
     when you want servers (with desktop experience) in a workgroup, only use netbios (i.e.  Cottonfield) name for the -Domain option, 
     that will separete between a domain and a workgroup environment. use the only the option genericServers.
@@ -62,6 +68,21 @@ Function New-OVLabDeploy() {
     use FQDN in the Domain Option (i.e. cottonfield.net), and use only the options ending with Core.
 
     c:\ps> New-OVLabDeploy -Domain Cottonfield.net -ProjectName MyProject -ProjectPath e:\virtualMachines -DomaincontrollersCore 2 -GenericServersCore 4
+
+    .EXAMPLE
+    Deploys a domain with core domain controllers and core servers, with network ip address 10.0.10.0. 
+    use FQDN in the Domain Option (i.e. cottonfield.net), and use only the options ending with Core.
+
+    c:\ps> New-OVLabDeploy -Domain Cottonfield.net -ProjectName MyProject -ProjectPath e:\virtualMachines -DomaincontrollersCore 2 -GenericServersCore 4 -NetworkIpAddress "10.0.10.0"
+
+    .EXAMPLE
+    Deploys a domain with core domain controllers and core servers, with network ip address 10.0.10.0. 
+    There will be also a configuration file created for mRemoteNG. This configuration file (.csv) will be placed on your desktop.
+    This file can then be imported in mRemoteNG, for preconfigured RDP Connections to the lab.
+    use FQDN in the Domain Option (i.e. cottonfield.net), and use only the options ending with Core.
+
+    c:\ps> New-OVLabDeploy -Domain Cottonfield.net -ProjectName MyProject -ProjectPath e:\virtualMachines `
+            -DomaincontrollersCore 2 -GenericServersCore 4 -NetworkIpAddress "10.0.10.0" -ExportRDPConfigForMremoteNG
 
     When you need a domain with mixed desktop experience and core edition, 
     use FQDN in the domain option and use all the options for domaincontrollers and genericserver including the ones ending with core.
