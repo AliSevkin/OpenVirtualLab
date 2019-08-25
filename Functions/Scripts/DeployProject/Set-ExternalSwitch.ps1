@@ -1,0 +1,3 @@
+Function Set-ExternalSwitch {
+    
+}

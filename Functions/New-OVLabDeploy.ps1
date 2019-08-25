@@ -100,9 +100,8 @@ Function New-OVLabDeploy() {
         [int]$GenericServers,
         [int]$DomainControllersCore,
         [int]$GenericServersCore,
-        #[int]$Windows10Pro,
-        #[int]$Windows10Enterprse,
         [string]$NetworkIpAddress,
+        [switch]$EnableInternet,
         [switch]$ExportRDPConfigForMremoteNG
     )  
 
@@ -127,6 +126,7 @@ Function New-OVLabDeploy() {
     $GenericComputer = @()
     $DomainControllerCore = @()
     $GenericComputerCore = @()
+    $NatRouterCore =@()
 
     # Get the variables for the differencing disk from config file
     $UserName = $ParentDiskConfig.UserName
@@ -168,6 +168,9 @@ Function New-OVLabDeploy() {
     $GenericComputer = [string[]](New-ComputerCollection -ServerCount $GenericServers -Prefix "$($ProjectPrefix)svr")
     $DomainControllerCore = [string[]](New-ComputerCollection -ServerCount $DomainControllersCore -Prefix "$($ProjectPrefix)dccore")
     $GenericComputerCore = [string[]](New-ComputerCollection -ServerCount $GenericServersCore -Prefix "$($ProjectPrefix)svrcore")
+    if($EnableInternet){
+        $NatRouterCore = [string[]](New-ComputerCollection -Servercount 1 -Prefix "$($ProjectPrefix)natrouter")
+    }
     #$ClientsPro = New-ComputerCollection -ServerCount $Windows10Pro -Prefix "winpc"
     #$ClientsEnterprise = New-ComputerCollection -ServerCount $Windows10Pro -Prefix "W10Ent"
 
@@ -186,14 +189,18 @@ Function New-OVLabDeploy() {
         $DCs = [string[]] $DomaincontrollerCore
     }
     else {
-        Write-Host "Couldn't determine the domain controllers, so i quit" -ForegroundColor DarkYellow
-        break
+        $DCs = $null
+        $DC = @()
     }
 
     $Comps += $DomainControllerCore 
     $Comps += $DomainController 
     $Comps += $GenericComputerCore 
     $Comps += $GenericComputer
+    
+    if($EnableInternet){
+        $Comps += $NatRouterCore
+    }
 
     ForEach ($comp in $Comps ) {
         If (-not [string]::IsNullOrEmpty($Comp)) { [string[]]$Computers += $Comp }
@@ -224,8 +231,8 @@ Function New-OVLabDeploy() {
                 $ParentDiskName = "$($WindowsVersion)_serverdatacenter.vhdx" 
             }
 
-            New-LabVmDisk -Computer $Computer -ProjectPath $ProjectPath -Gateway $Gateway `
-                -DnsServer $DnsServer -DifferencingParentFolder $DifferencingParentFolder -ParentDiskName $ParentDiskName `
+            New-LabVmDisk -Computer $Computer -ProjectPath $ProjectPath `
+                -DifferencingParentFolder $DifferencingParentFolder -ParentDiskName $ParentDiskName `
                 -ProjectName $ProjectName -Username $UserName -password $Password -AppName $AppName
         }
     
@@ -240,7 +247,9 @@ Function New-OVLabDeploy() {
         }
     
         $lastOctetIndex = $NetworkIPAddress.LastIndexOf('.')
+        
         $DnsServer = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.1'
+        if($DControllers.count -eq 0){ $DnsServer = "8.8.8.8" }
         $Gateway = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.254'
         $NetworkIp = ($NetworkIPAddress).substring(0, $lastOctetIndex)
         $IpCounter = 0
@@ -323,6 +332,12 @@ Function New-OVLabDeploy() {
             }         
         }
     
+        if($EnableInternet){
+            $NatMachine = "$ProjectName - $($NatRouterCore[0])"
+            Write-Log "Going to configure $NatMachine for internet access" -color green
+            Set-NatRouter -VmName $NatMachine -Username $UserName `
+            -Password $Password -Domain $Domain -ProjectName $ProjectName -Gateway $Gateway
+        }
         Write-Log "$('-'*$RepeatTop)`n$($Tabs)Finished deploying the project`n$('-'*$Repeat)" -color Magenta
         write-log $Stopwatch.Elapsed
 

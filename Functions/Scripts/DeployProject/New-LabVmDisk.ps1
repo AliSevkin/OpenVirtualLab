@@ -13,7 +13,7 @@ Function New-LabVmDisk {
 
 
         # Create the differencing disk for the vm 
-        Write-Host "(New-LabVmDisk) projectfolder folder is: $ProjectPath\$ProjectName VmName is: $VmGuestName "
+        Write-Host "(New-LabVmDisk) projectfolder folder is: $ProjectPath\$ProjectName VmName is: $Computer "
         New-LabVmSystemDisk -VmGuestName $Computer -VmLabFolder "$ProjectPath\$ProjectName" `
             -VmDiferencingParentFolder $DifferencingParentFolder -ParentDiskName $ParentDiskName -InitialDisk $False
 

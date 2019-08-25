@@ -13,10 +13,10 @@ function Install-LabVmGuestActiveDirectory
 		[string]$LogPath = "C:\Windows\NTDS",
 		[bool]$NoRebootOnCompletion = $false,
 		[string]$SysVolPath = "C:\Windows\SYSVOL",
-		[string]$UserName = "Administrator",
-		[string]$Password = "Amsterdam01",
+		[string]$UserName,
+		[string]$Password,
 		[bool]$SkipPrechecks = $false,
-		[string]$SafeModePassword = "Amsterdam01",
+		[string]$SafeModePassword,
 		[parameter(Mandatory=$true)]
 		[validateset("AddDomainController2Domain","NewForest","Domain2ExistingForest")]
 		[string]$DomainControllerPurpose,
