@@ -39,6 +39,9 @@ Function New-OVLabDeploy() {
     .PARAMETER NetworkIpAddress
     here you can specify wich network should be used for the lab. The network address shouldn't be the same as your hosts (windows machine) address.
 
+    .PARAMETER EnableInternet
+    Switch for deploying an extra server with RRAS preconfigured as NAT for internetconnectivity.
+
     .EXAMPLE
     when you want servers (with desktop experience) in a workgroup, only use netbios (i.e.  Cottonfield) name for the -Domain option, 
     that will separete between a domain and a workgroup environment. use the only the option genericServers.
@@ -83,6 +86,14 @@ Function New-OVLabDeploy() {
 
     c:\ps> New-OVLabDeploy -Domain Cottonfield.net -ProjectName MyProject -ProjectPath e:\virtualMachines `
             -DomaincontrollersCore 2 -GenericServersCore 4 -NetworkIpAddress "10.0.10.0" -ExportRDPConfigForMremoteNG
+
+    .EXAMPLE
+    when you want servers (With core edition and Desktop Experience) in a workgroup, 
+    only use netbios (i.e.  Cottonfield) name for the -Domain option, and use the genericserverCore and the genericserver options.
+    IF you also want internetconnectivity, you should use the enableinternet switch. This will give you internet access for the lab
+    through a RRAS server what will be configured as a NAT Router.
+
+    c:\ps> New-OVLabDeploy -Domain workgroup -ProjectName MyProject -ProjectPath e:\virtualMachines -GenericServers 4 -EnableInternet
 
     When you need a domain with mixed desktop experience and core edition, 
     use FQDN in the domain option and use all the options for domaincontrollers and genericserver including the ones ending with core.
