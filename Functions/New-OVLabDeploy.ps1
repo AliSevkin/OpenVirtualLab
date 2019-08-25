@@ -137,7 +137,7 @@ Function New-OVLabDeploy() {
     $GenericComputer = @()
     $DomainControllerCore = @()
     $GenericComputerCore = @()
-    $NatRouterCore =@()
+    $NatRouterCore = @()
 
     # Get the variables for the differencing disk from config file
     $UserName = $ParentDiskConfig.UserName
@@ -155,23 +155,25 @@ Function New-OVLabDeploy() {
         
         If (-not $fileExists) {
             [string[]]$SubProjectNumbers += @($Random)
-            if(-Not (Test-Path $ProjectFolder)){
+            if (-Not (Test-Path $ProjectFolder)) {
                 New-Item $ProjectFolder -itemtype Directory
             }
 
-            $SubprojectNumbers|ConvertTo-Json|Out-File -filepath "$ProjectFolder\subproject.json"
+            $SubprojectNumbers | ConvertTo-Json | Out-File -filepath "$ProjectFolder\subproject.json"
             $UniqueSubProjectNumber = $true
-        } else {
-            $SubProjectNumbers = [string[]](Get-Content "$ProjectFolder\subproject.json" -raw)|ConvertFrom-Json
-            If($SubprojectNumbers -contains $Random) { 
+        }
+        else {
+            $SubProjectNumbers = [string[]](Get-Content "$ProjectFolder\subproject.json" -raw) | ConvertFrom-Json
+            If ($SubprojectNumbers -contains $Random) { 
                 $UniqueSubProjectNumber = $False
-            } else { 
+            }
+            else { 
                 $UniqueSubProjectNumber = $true
             }
         }
     }While (-Not $UniqueSubProjectNumber)
     $SubProjectNumbers += $Random
-    $SubprojectNumbers|ConvertTo-Json|Out-File -filepath "$ProjectFolder\subproject.json"
+    $SubprojectNumbers | ConvertTo-Json | Out-File -filepath "$ProjectFolder\subproject.json"
 
     $ProjectPrefix = "$($ProjectName.substring(0,2))$Random".ToLower()
     # Prefix the computer names with functionality of server
@@ -179,7 +181,7 @@ Function New-OVLabDeploy() {
     $GenericComputer = [string[]](New-ComputerCollection -ServerCount $GenericServers -Prefix "$($ProjectPrefix)svr")
     $DomainControllerCore = [string[]](New-ComputerCollection -ServerCount $DomainControllersCore -Prefix "$($ProjectPrefix)dccore")
     $GenericComputerCore = [string[]](New-ComputerCollection -ServerCount $GenericServersCore -Prefix "$($ProjectPrefix)svrcore")
-    if($EnableInternet){
+    if ($EnableInternet) {
         $NatRouterCore = [string[]](New-ComputerCollection -Servercount 1 -Prefix "$($ProjectPrefix)natrouter")
     }
     #$ClientsPro = New-ComputerCollection -ServerCount $Windows10Pro -Prefix "winpc"
@@ -209,172 +211,171 @@ Function New-OVLabDeploy() {
     $Comps += $GenericComputerCore 
     $Comps += $GenericComputer
     
-    if($EnableInternet){
+    if ($EnableInternet) {
         $Comps += $NatRouterCore
     }
 
     ForEach ($comp in $Comps ) {
         If (-not [string]::IsNullOrEmpty($Comp)) { [string[]]$Computers += $Comp }
+    }
+
+    ForEach ($DC in $DCs ) {
+        If (-not [string]::IsNullOrEmpty($dc)) { [string[]]$DControllers += $DC }
+    }
+
+    $Computers | ForEach-Object { Write-Host $_  will be created }
+
+    $lastOctetIndex = $NetworkIPAddress.LastIndexOf('.')
+    $DnsServer = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.1'
+    if ($DControllers.count -eq 0) { $DnsServer = "8.8.8.8" }
+    $Gateway = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.254'
+    $ManagementIP = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.250'
+    $NetworkIp = ($NetworkIPAddress).substring(0, $lastOctetIndex)
+
+    # logging show which computers shall be prepared
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)$($Computers.Count) Virtual Machines to create`n $('-'*$Repeat)" -color magenta
+    Write-Log "Going to create the following computers:"
+
+    #Creating the virtual switch
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)Creating The Project Switch`n$('-'*$Repeat)" -color Magenta
+    New-LabVmSwitch -Name $ProjectName -ManagementIP $ManagementIP
+
+    foreach ($Computer in $Computers) {
+
+        if ($Computer -like "*Core*") { 
+            $ParentDiskName = "$($WindowsVersion)_serverdatacentercore.vhdx" 
+        }
+        else { 
+            $ParentDiskName = "$($WindowsVersion)_serverdatacenter.vhdx" 
         }
 
-        ForEach ($DC in $DCs ) {
-            If (-not [string]::IsNullOrEmpty($dc)) { [string[]]$DControllers += $DC }
-            }
-
-        $Computers | ForEach-Object { Write-Host $_  will be created }
-
-        # logging show which computers shall be prepared
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)$($Computers.Count) Virtual Machines to create`n $('-'*$Repeat)" -color magenta
-        Write-Log "Going to create the following computers:"
-
-        #Creating the virtual switch
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Creating The Project Switch`n$('-'*$Repeat)" -color Magenta
-        New-LabVmSwitch -Name $ProjectName
-
-
-
-        foreach ($Computer in $Computers) {
-
-            if ($Computer -like "*Core*") { 
-                $ParentDiskName = "$($WindowsVersion)_serverdatacentercore.vhdx" 
-            }
-            else { 
-                $ParentDiskName = "$($WindowsVersion)_serverdatacenter.vhdx" 
-            }
-
-            New-LabVmDisk -Computer $Computer -ProjectPath $ProjectPath `
-                -DifferencingParentFolder $DifferencingParentFolder -ParentDiskName $ParentDiskName `
-                -ProjectName $ProjectName -Username $UserName -password $Password -AppName $AppName
-        }
+        New-LabVmDisk -Computer $Computer -ProjectPath $ProjectPath `
+            -DifferencingParentFolder $DifferencingParentFolder -ParentDiskName $ParentDiskName `
+            -ProjectName $ProjectName -Username $UserName -password $Password -AppName $AppName
+    }
     
-        # Create and configure all vm's (generic)
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Creating The Virtual Machines`n$('-'*$Repeat)" -color Magenta
-        for ($i = 0; $i -lt $Computers.Count; $i++) {
-            Write-log "Creating VM for $($Computers[$i])"
+    # Create and configure all vm's (generic)
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)Creating The Virtual Machines`n$('-'*$Repeat)" -color Magenta
+    for ($i = 0; $i -lt $Computers.Count; $i++) {
+        Write-log "Creating VM for $($Computers[$i])"
 
-            New-LabVm -ComputerName $Computers[$i] -VmSwitch $ProjectName `
-                -VmLabFolder $ProjectPath -ProjectName $ProjectName
+        New-LabVm -ComputerName $Computers[$i] -VmSwitch $ProjectName `
+            -VmLabFolder $ProjectPath -ProjectName $ProjectName
         
-        }
+    }
     
-        $lastOctetIndex = $NetworkIPAddress.LastIndexOf('.')
+    $IpCounter = 0
+
+    # rename the network and add the dns server
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)Configuring the Network`n$('-'*$Repeat)" -color Magenta
+    for ($i = 0; $i -lt $Computers.Count; $i++) {
         
-        $DnsServer = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.1'
-        if($DControllers.count -eq 0){ $DnsServer = "8.8.8.8" }
-        $Gateway = ($NetworkIPAddress).substring(0, $lastOctetIndex) + '.254'
-        $NetworkIp = ($NetworkIPAddress).substring(0, $lastOctetIndex)
+        $IpCounter++
+        $Lanip = "$NetworkIp.$($IpCounter)"
+        Write-Host "IP Address will be:  $Lanip"
+
+        Write-log "Going to Configure network for $($Computers[$i])"
+        Edit-NetworkAdapter -NewAdapterName "$ProjectName Lan" -DnsServer $DnsServer -ProjectName $ProjectName `
+            -Computer $Computers[$i] -Domain $Domain -UserName $UserName -Password $Password -IpAddress $LanIp -Gateway $GateWay
+        
+    }
+    
+    # install the role active-directory-services on the first domain controller.
+    if ($DControllers.Count -gt 0) {
+        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Install The AD-Directory-Service Role on the first domain controller`n$('-'*$Repeat)" -color Magenta
+        Write-log "Going to install the active directory services on $($DControllers[0])"
+        Install-LabVmWindowsRole -DomainController $DControllers[0] -Username $Username -password $Password `
+            -VMGuest "$ProjectName - $($DControllers[0])" -Role "ad-domain-services" -Domain "."
+    }
+    
+    # promote the firs domain controller
+    if ($DControllers.Count -gt 0) {
+        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Promoting the first domain controller`n$('-'*$Repeat)" -color Magenta
+        Write-log "Going to deploy the first domain controller $($DControllers[0])"
+        New-FirstDomainController -VMGuestName $DControllers[0] -ProjectName $ProjectName `
+            -UserName $UserName -Password $Password -Domain $Domain
+    }
+    
+    # Remove the temporary Mount folder for the project
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)Removing temporary projects folders`n$('-'*$Repeat)" -color Magenta
+    $ProgrammDataProjectFolder = "$env:ProgramData\$AppName\$ProjectName"
+    if (Test-Path $ProgrammDataProjectFolder) { Remove-Item $ProgrammDataProjectFolder -Recurse -Force }
+    
+    # Join The generics to the domain.
+    if ($DControllers.Length -ge 1) {
+        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Join the generic computers to the domain`n$('-'*$Repeat)" -color Magenta
+        for ($i = 1; $i -lt $computers.Count; $i++) {
+            Wait-ForDomain -ProjectName $ProjectName -DomainControllerName $DControllers[0] `
+                -Domain $Domain -UserName $UserName -Password $Password
+    
+            Write-log "Adding Computer $($Computers[$i]) to domain $Domain"
+            Add-ComputerToDomain -Password $Password -Username $UserName -Domain $Domain -ComputerName $Computers[$i] `
+                -ProjectName $ProjectName
+        }
+    }
+    
+    # Install ad-domain-service on additional domain controllers
+    if ($DControllers.Count -gt 1) {
+        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Install The AD-Directory-Service Role on the additional domain controllers`n$('-'*$Repeat)" -color Magenta
+        for ($i = 1; $i -lt $DControllers.Count; $i++) {
+   
+            Write-log "Going to install the active directory services on $($DControllers[$i])"
+            Install-LabVmWindowsRole -DomainController $DControllers[$i] -Username $Username -password $Password `
+                -VmGuest "$ProjectName - $($DControllers[$i])" -Role "ad-domain-services" -Domain "."
+            
+        }
+    }
+    
+    #Promoting additional domain controllers
+    if ($DControllers.Length -gt 1) {
+       
+        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Promoting additional domain Controllers`n$('-'*$Repeat)" -color Magenta
+        for ($i = 1; $i -lt $DControllers.Length; $i++) {
+            Write-log "Going to deploy Domain Controller on $($DControllers[$i])"
+            
+            $PsSession = New-LabPsSession -VMGuest "$ProjectName - $($DControllers[$i])" `
+                -UserName $Username -Password $Password -Domain $Domain
+                
+            Install-LabVmGuestActiveDirectory -SafeModePassword $Password `
+                -Password $Password -PsSession $PsSession `
+                -Username $UserName -NoRebootOnCompletion:$false `
+                -DomainControllerPurpose "AddDomainController2Domain" -DomainName $Domain
+        
+        }         
+    }
+    
+    if ($EnableInternet) {
+        $NatMachine = "$ProjectName - $($NatRouterCore[0])"
+        Write-Log "Going to configure $NatMachine for internet access" -color green
+        Set-NatRouter -VmName $NatMachine -Username $UserName `
+            -Password $Password -Domain $Domain -ProjectName $ProjectName -Gateway $Gateway
+    }
+    Write-Log "$('-'*$RepeatTop)`n$($Tabs)Finished deploying the project`n$('-'*$Repeat)" -color Magenta
+    write-log $Stopwatch.Elapsed
+
+    $mRemoteNGCSV = @()
+    If ($ExportRDPConfigForMremoteNG) {
+        $Id = (New-Guid).Guid
+        $mRemoteNGCSV += Export-mRemoteNg -NodeName "$($ProjectPrefix)" -NodeType "Container" -ProjectName "$($ProjectName)($ProjectPrefix)" -NodeId $Id -Icon "mRemoteNG"
+
         $IpCounter = 0
-
-        # rename the network and add the dns server
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Configuring the Network`n$('-'*$Repeat)" -color Magenta
-        for ($i = 0; $i -lt $Computers.Count; $i++) {
-        
+        ForEach ($Computer in $Computers) {
             $IpCounter++
             $Lanip = "$NetworkIp.$($IpCounter)"
-            Write-Host "IP Address will be:  $Lanip"
-
-            Write-log "Going to Configure network for $($Computers[$i])"
-            Edit-NetworkAdapter -NewAdapterName "$ProjectName Lan" -DnsServer $DnsServer -ProjectName $ProjectName `
-                -Computer $Computers[$i] -Domain $Domain -UserName $UserName -Password $Password -IpAddress $LanIp -Gateway $GateWay
-        
+            $mRemoteNGCSV += Export-mRemoteNg -NodeName $Computer -NodeType "Connection" -ProjectName $ProjectName -Domain $Domain `
+                -Description "" -IpAddress $Lanip -Password $Password -ParentId $Id `
+                -NodeId "$((New-Guid).Guid)" -Icon "Windows" -UserName $UserName
         }
-    
-        # install the role active-directory-services on the first domain controller.
-        if ($DControllers.Count -gt 0) {
-            Write-Log "$('-'*$RepeatTop)`n$($Tabs)Install The AD-Directory-Service Role on the first domain controller`n$('-'*$Repeat)" -color Magenta
-            Write-log "Going to install the active directory services on $($DControllers[0])"
-            Install-LabVmWindowsRole -DomainController $DControllers[0] -Username $Username -password $Password `
-                -VMGuest "$ProjectName - $($DControllers[0])" -Role "ad-domain-services" -Domain "."
-        }
-    
-        # promote the firs domain controller
-        if ($DControllers.Count -gt 0) {
-            Write-Log "$('-'*$RepeatTop)`n$($Tabs)Promoting the first domain controller`n$('-'*$Repeat)" -color Magenta
-            Write-log "Going to deploy the first domain controller $($DControllers[0])"
-            New-FirstDomainController -VMGuestName $DControllers[0] -ProjectName $ProjectName `
-                -UserName $UserName -Password $Password -Domain $Domain
-        }
-    
-        # Remove the temporary Mount folder for the project
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Removing temporary projects folders`n$('-'*$Repeat)" -color Magenta
-        $ProgrammDataProjectFolder = "$env:ProgramData\$AppName\$ProjectName"
-        if (Test-Path $ProgrammDataProjectFolder) { Remove-Item $ProgrammDataProjectFolder -Recurse -Force }
-    
-        # Join The generics to the domain.
-        if ($DControllers.Length -ge 1) {
-            Write-Log "$('-'*$RepeatTop)`n$($Tabs)Join the generic computers to the domain`n$('-'*$Repeat)" -color Magenta
-            for ($i = 1; $i -lt $computers.Count; $i++) {
-                Wait-ForDomain -ProjectName $ProjectName -DomainControllerName $DControllers[0] `
-                    -Domain $Domain -UserName $UserName -Password $Password
-    
-                Write-log "Adding Computer $($Computers[$i]) to domain $Domain"
-                Add-ComputerToDomain -Password $Password -Username $UserName -Domain $Domain -ComputerName $Computers[$i] `
-                    -ProjectName $ProjectName
-            }
-        }
-    
-        # Install ad-domain-service on additional domain controllers
-        if ($DControllers.Count -gt 1) {
-            Write-Log "$('-'*$RepeatTop)`n$($Tabs)Install The AD-Directory-Service Role on the additional domain controllers`n$('-'*$Repeat)" -color Magenta
-            for ($i = 1; $i -lt $DControllers.Count; $i++) {
-   
-                Write-log "Going to install the active directory services on $($DControllers[$i])"
-                Install-LabVmWindowsRole -DomainController $DControllers[$i] -Username $Username -password $Password `
-                    -VmGuest "$ProjectName - $($DControllers[$i])" -Role "ad-domain-services" -Domain "."
-            
-            }
-        }
-    
-        #Promoting additional domain controllers
-        if ($DControllers.Length -gt 1) {
-       
-            Write-Log "$('-'*$RepeatTop)`n$($Tabs)Promoting additional domain Controllers`n$('-'*$Repeat)" -color Magenta
-            for ($i = 1; $i -lt $DControllers.Length; $i++) {
-                Write-log "Going to deploy Domain Controller on $($DControllers[$i])"
-            
-                $PsSession = New-LabPsSession -VMGuest "$ProjectName - $($DControllers[$i])" `
-                    -UserName $Username -Password $Password -Domain $Domain
-                
-                Install-LabVmGuestActiveDirectory -SafeModePassword $Password `
-                    -Password $Password -PsSession $PsSession `
-                    -Username $UserName -NoRebootOnCompletion:$false `
-                    -DomainControllerPurpose "AddDomainController2Domain" -DomainName $Domain
-        
-            }         
-        }
-    
-        if($EnableInternet){
-            $NatMachine = "$ProjectName - $($NatRouterCore[0])"
-            Write-Log "Going to configure $NatMachine for internet access" -color green
-            Set-NatRouter -VmName $NatMachine -Username $UserName `
-            -Password $Password -Domain $Domain -ProjectName $ProjectName -Gateway $Gateway
-        }
-        Write-Log "$('-'*$RepeatTop)`n$($Tabs)Finished deploying the project`n$('-'*$Repeat)" -color Magenta
-        write-log $Stopwatch.Elapsed
-
-        $mRemoteNGCSV = @()
-        If ($ExportRDPConfigForMremoteNG){
-            $Id = (New-Guid).Guid
-            $mRemoteNGCSV += Export-mRemoteNg -NodeName "$($ProjectPrefix)" -NodeType "Container" -ProjectName "$($ProjectName)($ProjectPrefix)" -NodeId $Id -Icon "mRemoteNG"
-
-               $IpCounter = 0
-               ForEach($Computer in $Computers) {
-                    $IpCounter++
-                    $Lanip = "$NetworkIp.$($IpCounter)"
-                    $mRemoteNGCSV += Export-mRemoteNg -NodeName $Computer -NodeType "Connection" -ProjectName $ProjectName -Domain $Domain `
-                    -Description "" -IpAddress $Lanip -Password $Password -ParentId $Id `
-                    -NodeId "$((New-Guid).Guid)" -Icon "Windows" -UserName $UserName
-               }
            
-            $CSV = $mRemoteNGCSV|ConvertTo-Csv -NoTypeInformation -Delimiter ';'|ForEach-Object{$_ -replace '"',''}
-            $CSV|Out-File "$env:USERPROFILE\Desktop\$ProjectName.csv" -Encoding utf8
+        $CSV = $mRemoteNGCSV | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | ForEach-Object { $_ -replace '"', '' }
+        $CSV | Out-File "$env:USERPROFILE\Desktop\$ProjectName.csv" -Encoding utf8
 
-            Write-Host "mRemoteNG configuration exported. to desktop with the name: $("$env:USERPROFILE\Desktop\$ProjectName.csv")"
-        }
-        $StopWatch.Stop()
-    } 
+        Write-Host "mRemoteNG configuration exported. to desktop with the name: $("$env:USERPROFILE\Desktop\$ProjectName.csv")"
+    }
+    $StopWatch.Stop()
+} 
 
-    <# 
+<# 
         |Select-Object Name,Id,Parent,NodeType,Description,Icon,Panel,Username,Password,Domain, `
             Hostname,Protocol,PuttySession,Port,ConnectToConsole,UseCredSsp,RenderingEngine,ICAEncryptionStrength, `
             RDPAuthenticationLevel,LoadBalanceInfo,Colors,Resolution,AutomaticResize,DisplayWallpaper,DisplayThemes, `

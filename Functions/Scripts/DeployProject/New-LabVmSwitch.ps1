@@ -2,7 +2,8 @@
 {
 	param (
 		[parameter(Mandatory = $true)]
-		[string]$Name
+		[string]$Name,
+		[string]$ManagementIP
 	)
 
 	# set the $CheckVmSwitch variable to  null, so we can do a 
@@ -23,6 +24,10 @@
 		{
 			#create the switch
 			New-VMSwitch -Name $Name -SwitchType Internal
+
+			$InterFaceAlias = (Get-NetAdapter -Name "*$($Name)*").Name
+			New-NetIPAddress -InterfaceAlias $InterFaceAlias -IPAddress $ManagementIP -PrefixLength 24
+
 			Write-Verbose "VMSwitch Created for Lab $CheckVmSwitch"
 		}
 		catch
