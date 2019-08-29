@@ -33,7 +33,7 @@
 		catch
 		{
 			# Creating the switch has ran into an error and couldn't continue
-			Write-Log "(New-LabVmSwitch) Some error occured during creation of the vmswitch $CheckVmSwitch" -Red
+			Write-Log "(New-LabVmSwitch) Some error occured during creation of the vmswitch $CheckVmSwitch"
 		}
 	}
 	else
